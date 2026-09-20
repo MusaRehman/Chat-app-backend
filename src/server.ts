@@ -1,25 +1,49 @@
 import http from "http";
-import { WebSocketServer } from "ws";
-
+import { Server } from "socket.io";
+import "dotenv/config";
+import { sequelize } from "./config/postgress-connection";
+import "./models";
 const server = http.createServer();
-const wss = new WebSocketServer({ server });
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+  },
+});
 
+async function startServer() {
+  try {
+    await sequelize.authenticate();
 
-wss.on("connection", (ws) => {
-  console.log("New client connected");
+    console.log("PostgreSQL connected");
 
-  ws.on("message", (message) => {
-    console.log(`Received message: ${message}`);
-    // Echo the message back to the client
-    ws.send(`Server received: ${message}`);
-    ws.send(`current clients: ${wss.clients.size}` );
-  });
+    await sequelize.sync();
 
-  ws.on("close", () => {
-    console.log("Client disconnected");
-  });
+    console.log("Database synchronized");
+
+    // Start HTTP / Socket.IO server here
+  } catch (error) {
+    console.error("Database connection failed:", error);
+    process.exit(1);
+  }
 }
-);
+
+startServer();
+
+io.on("connection", (socket)=>{
+  console.log("A user connected");
+
+  socket.on("message", (data) => {
+    console.log("Received message:", data);
+    // Broadcast the message to all connected clients
+    io.emit("message", data);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("A user disconnected");
+  }); 
+
+})
+
 const PORT = 9091;
 
 server.listen(PORT, () => {
