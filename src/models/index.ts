@@ -3,6 +3,8 @@ import { Chat } from "./chat.model";
 import { ChatMember } from "./chatMember.model";
 import { Message } from "./message.model";
 
+// added user schema
+
 User.belongsToMany(Chat, {
   through: ChatMember,
   foreignKey: "userId",
