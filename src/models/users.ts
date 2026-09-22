@@ -1,10 +1,20 @@
+import {
+  CreationOptional,
+  DataTypes,
+  InferAttributes,
+  InferCreationAttributes,
+  Model,
+} from "sequelize";
 import { sequelize } from "../config/postgress-connection";
 
+export class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
+  declare id: CreationOptional<number>;
+  declare username: string;
+  declare email: string;
+  declare passwordHash: string;
+}
 
-import { DataTypes } from "sequelize";
-
-export const User = sequelize.define(
-  "User",
+User.init(
   {
     id: {
       type: DataTypes.INTEGER,
@@ -29,10 +39,10 @@ export const User = sequelize.define(
     },
   },
   {
+    sequelize,
     tableName: "users",
     timestamps: true,
     createdAt: "created_at",
     updatedAt: false,
   }
 );
-
