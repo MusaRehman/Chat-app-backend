@@ -5,11 +5,18 @@ import "dotenv/config";
 import { sequelize } from "./config/postgress-connection";
 import "./models";
 import authRoutes from "./routes/auth";
+import { authenticateSocketToken, authenticateToken } from "./helper/auth";
+import { initializeSocket } from "./sockets";
 
 const app = express();
 
 app.use(express.json());
 app.use("/api/auth", authRoutes);
+
+// Protected REST API routes
+// app.use("/api/protected", authenticateToken, (req, res) => {
+//   res.status(200).json({ message: "This is a protected route" });
+// });
 
 const server = http.createServer(app);
 
@@ -19,19 +26,11 @@ const io = new Server(server, {
   },
 });
 
-io.on("connection", (socket) => {
-  console.log("A user connected");
+// Socket.io authentication middleware
+io.use(authenticateSocketToken);
 
-  socket.on("message", (data) => {
-    console.log("Received message:", data);
-
-    io.emit("message", data);
-  });
-
-  socket.on("disconnect", () => {
-    console.log("A user disconnected");
-  });
-});
+// Initialize socket Server
+initializeSocket(io);
 
 async function startServer() {
   try {
