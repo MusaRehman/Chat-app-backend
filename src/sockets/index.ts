@@ -11,6 +11,7 @@ export const initializeSocket = (io: Server) => {
             // Register global chat events for guests
             registerGlobalChatEvents(io, socket);
         } else {
+            registerPrivateRoomEvents(io, socket);
             console.log(`User connected: ${socket.data?.username} (${socket.data?.userId}) `);
         }
     });
