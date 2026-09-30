@@ -14,7 +14,7 @@ const SALT_ROUNDS: number = 10;
 env.config();
 
 export const signUp = async (req: Request<{}, {}, RegisterAuthRequest>, res: Response) => {
-    const { username, email, password } = req.body;
+    const { username, email, password, role = "user" } = req.body;
 
     try {
 
@@ -46,6 +46,7 @@ export const signUp = async (req: Request<{}, {}, RegisterAuthRequest>, res: Res
             username,
             email,
             passwordHash: hasedPassword,
+            permissionLevel: role,
         });
         if (!newUser) {
             return res.status(500).json({ message: "Failed to create user" });

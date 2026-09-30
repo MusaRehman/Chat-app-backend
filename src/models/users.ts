@@ -7,11 +7,16 @@ import {
 } from "sequelize";
 import { sequelize } from "../config/postgress-connection";
 
-export class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
+export class User extends Model<
+  InferAttributes<User>,
+  InferCreationAttributes<User>
+> {
   declare id: CreationOptional<number>;
   declare username: string;
   declare email: string;
   declare passwordHash: string;
+  declare permissionLevel: CreationOptional<"user" | "admin">;
+  declare created_at: CreationOptional<Date>;
 }
 
 User.init(
@@ -36,6 +41,18 @@ User.init(
     passwordHash: {
       type: DataTypes.TEXT,
       allowNull: false,
+    },
+
+    permissionLevel: {
+      type: DataTypes.ENUM("user", "admin"),
+      allowNull: false,
+      defaultValue: "user",
+    },
+
+    created_at: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
     },
   },
   {
